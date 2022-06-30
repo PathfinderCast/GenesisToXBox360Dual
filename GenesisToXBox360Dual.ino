@@ -1,4 +1,3 @@
-// This needs version 0.94 or later of the USB Composite library: https://github.com/arpruss/USBComposite_stm32f1
 #include <libmaple/iwdg.h>
 #include "SegaController.h"
 #include <USBComposite.h>
@@ -15,16 +14,15 @@ const uint32_t watchdogSeconds = 6;
 // 5 4 3 2 1
 //  9 8 7 6
 
+// 3.3 PB15 PB14 PB13 PB12
+//   PA9 GND PA10 PA8
+
 // 3.3 PA3 PA2 PA1 PA0
 //   PA6 GND PA5 PA4
 
-// 3.3 PB3 PB5 PB4 PB6
-//   PB9 GND PB8 PB7
-
-
-// pins:                    7,   1,   2,   3,   4,   6,   9
+// pins:                    7,   1,   2,    3,    4,    6,   9
 SegaController sega(      PA10, PB12, PB13, PB14, PB15, PA8, PA9);
-SegaController segaSecond(PA5, PA0, PA1, PA2, PA3, PA4, PA6);
+SegaController segaSecond(PA5,  PA0,  PA1,  PA2,  PA3,  PA4, PA6);
 
 #define NUM_INPUTS 2
 
@@ -57,29 +55,25 @@ struct start_data {
  */
 
 const uint16_t remap_xbox[16] = {
-  0xFFFF,       //SC_CTL_ON
-  XBOX_DUP,     //SC_BTN_UP
-  XBOX_DDOWN,   //SC_BTN_DOWN
-  XBOX_DLEFT,   //SC_BTN_LEFT
-  XBOX_DRIGHT,  //SC_BTN_RIGHT
-  XBOX_START,   //SC_BTN_START
-  XBOX_X,      // A
-  XBOX_A,       // B
-  XBOX_B,       // C
-  XBOX_LSHOULDER, // X
-  XBOX_Y,         // Y
-  XBOX_RSHOULDER, // Z
-  XBOX_GUIDE,    // MODE
+  0xFFFF,         //CTL_ON
+  XBOX_DUP,       //UP
+  XBOX_DDOWN,     //DOWN
+  XBOX_DLEFT,     //LEFT
+  XBOX_DRIGHT,    //RIGHT
+  XBOX_START,     //BTN_START
+  XBOX_X,         //A
+  XBOX_A,         //B
+  XBOX_B,         //C
+  XBOX_LSHOULDER, //X
+  XBOX_Y,         //Y
+  XBOX_RSHOULDER, //Z
+  XBOX_GUIDE,     //MODE
   0xFFFF,
   0xFFFF,
   0xFFFF
 };
 
 const uint16_t* remap = remap_xbox;
-
-inline int16_t range10u16s(uint16_t x) {
-  return (((int32_t)(uint32_t)x - 512) * 32767 + 255) / 512;
-}
 
 void reset(USBXBox360WController* c) {
   c->X(0);
