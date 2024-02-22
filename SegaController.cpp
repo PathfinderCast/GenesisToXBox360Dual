@@ -56,14 +56,14 @@ SegaController::SegaController(unsigned db9_pin_7, unsigned db9_pin_1, unsigned 
 
 word SegaController::getState()
 {
-    if (max(millis() - _lastReadTime, 0) < SC_READ_DELAY_MS)
+    if (max(millis() - _lastReadTime, 0lu) < SC_READ_DELAY_MS)
     {
         // Not enough time has elapsed, return previously read state
         return _currentState;
     }
-    
+
     noInterrupts();
-    
+
     // Clear current state
     _currentState = 0;
 
@@ -77,9 +77,9 @@ word SegaController::getState()
     {
         _sixButtonMode = false;
     }
-    
+
     interrupts();
-    
+
     _lastReadTime = millis();
 
     return _currentState;
@@ -89,7 +89,7 @@ void SegaController::readCycle(byte cycle)
 {
     // Set the select pin low/high
     digitalWrite(_selectPin, cycle % 2);
-    
+
     delayMicroseconds(50);
 
     // Read flags
@@ -98,7 +98,7 @@ void SegaController::readCycle(byte cycle)
         case 2:
             // Check that a controller is connected
             _currentState |= (digitalRead(_inputPins[2]) == LOW && digitalRead(_inputPins[3]) == LOW) * SC_CTL_ON;
-            
+
             // Check controller is connected before reading A/Start to prevent bad reads when inserting/removing cable
             if (_currentState & SC_CTL_ON)
             {

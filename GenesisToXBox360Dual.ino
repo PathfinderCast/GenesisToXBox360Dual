@@ -9,6 +9,7 @@
 
 const uint32_t watchdogSeconds = 6;
 
+//Note: Do not use pins PA11 and PA12. They are reserverd.
 // Looking straight on at female socket (or from back of male jack):
 
 // 5 4 3 2 1
@@ -23,6 +24,10 @@ const uint32_t watchdogSeconds = 6;
 // pins:                    7,   1,   2,    3,    4,    6,   9
 SegaController sega(      PA10, PB12, PB13, PB14, PB15, PA8, PA9);
 SegaController segaSecond(PA5,  PA0,  PA1,  PA2,  PA3,  PA4, PA6);
+
+#define GUIDE_PIN PB7
+#define START_PIN PB8
+#define BACK_PIN PB9
 
 #define NUM_INPUTS 2
 
@@ -92,6 +97,10 @@ void setup() {
     USBXBox360WController* c = &XBox360.controllers[n];
     c->setManualReportMode(true);
   }
+
+  pinMode(GUIDE_PIN, INPUT_PULLUP);
+  pinMode(START_PIN, INPUT_PULLUP);
+  pinMode(BACK_PIN, INPUT_PULLUP);
 }
 
 void loop() {
@@ -111,6 +120,14 @@ void loop() {
       active = true;
 
       c->buttons(0);
+
+      //wire up extra button pins, only trigger on first controller
+      if (n == 0) {
+        if (digitalRead(GUIDE_PIN) == LOW) { c->button(XBOX_GUIDE, 1); }
+        if (digitalRead(START_PIN) == LOW) { c->button(XBOX_START, 1); }
+        if (digitalRead(BACK_PIN) == LOW) { c->button(XBOX_BACK, 1); }
+      }
+
       struct start_data *s = start + n;
       if (state & SC_BTN_START) { //start button held down
         s->pressed = true;
